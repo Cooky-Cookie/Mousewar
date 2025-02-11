@@ -30,6 +30,13 @@
 .mario {
   width: 60px;
   aspect-ratio: 1;
+  position: relative;
+  top: 0%;
+  left: 0%;
   background: url(https://assets.codepen.io/1480814/mm.png) center/cover;
+  animation: x linear,y linear;
+  animation-timeline: scroll(nearest inline),scroll(nearest block);
 }
+@keyframes x{to {left: calc(100% - 60px)}}
+@keyframes y{to {top: calc(100% - 60px)}}
  </style>
