@@ -1,5 +1,9 @@
 <div class="container">
-  <div></div>
+  <div>
+    <div class="game">
+      <div class="mario"></div>
+    </div>
+  </div>
 </div>
 <style>
 .container {
@@ -9,8 +13,23 @@
   border: 5px solid;
   overflow: auto;
 }
-.container div {
+.container > div {
   width: 200%;
   height: 200%;
+}
+
+.game {
+  max-width: 300px;
+  height: 200px;
+  position: sticky;
+  top: 10px;
+  left: 40px;
+  border: 5px solid;
+  background: #6185f8;
+}
+.mario {
+  width: 60px;
+  aspect-ratio: 1;
+  background: url(https://assets.codepen.io/1480814/mm.png) center/cover;
 }
  </style>
