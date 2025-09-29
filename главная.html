@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+</head>
+<body>
+      <button onclick="window.location.href='игровая.html'">Перейти в игровую</button>
+    <h1 align="center">Профиль пользователя</h1>
+    <p align="center">Здесь будет информация о пользователе.</p>
+      <style>
+        body {
+            background-color: rgba(216, 131, 33, 0.747);
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            background-color: rgb(93, 179, 93);
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 40px;
+        }
+        .avatar {
+            display: block;
+            margin-bottom: 20px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 0px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: rgb(78, 52, 19);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <label for="avatar">Загрузите свою аватарку:</label>
+    <input type="file" id="avatar" class="avatar" accept="image/*">
+
+    <label for="name">Ваше имя:</label>
+    <input type="text" id="name" placeholder="Введите Ваше имя">
+
+    <label for="bio">О себе:</label>
+    <textarea id="bio" rows="4" maxlength="100" placeholder="Напишите о себе (до 100 слов)"></textarea>
+
+    <button onclick="saveProfile()">Сохранить</button>
+    <button onclick="window.location.href='ваш окрас.html'">Выбрать окрас</button>
+</div>
+</body>
+</html>
