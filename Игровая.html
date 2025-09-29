@@ -1,77 +1,529 @@
-<script>
-  <!--
-  alert("мяу")
-  //>
-</script>
-<noscript>
-  <p>Отсутствует джаваскрипт..</p>
-</noscript>
-<button><a href='menu.html'>Меню</a></button>
-<div class="container">
-  <div>
-    <div class="game">
-      <div class="mouse"></div>
-      <div class="coin"></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Интерфейс с игроком</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #d0f0c0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  /* Панели фиксированные */
+  #left-panel {
+    position: fixed;
+    top: 0; left: 0;
+    width: 200px;
+    height: 100%;
+    background-color: #d0f0c0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  #right-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 150px;
+    height: 100%;
+    background-color: #d0f0c0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  #bottom-bar {
+    position: fixed;
+    bottom: 0; left: 200px; right: 150px;
+    height: 60px;
+    background-color: #d0f0c0;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+  }
+
+  #main-container {
+    position: absolute;
+    top: 0;
+    bottom: 60px;
+    left: 200px;
+    right: 150px;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 350px);
+    height: calc(100% - 60px);
+    box-sizing: border-box;
+  }
+
+  #game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  #viewport {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #fff;
+    overflow: hidden;
+    z-index: 0;
+  }
+/*гейм здесь - внутренне поле внутри контейнера с игровой, где мышь бегает по полю с фоном*/
+ .game {
+    width: 4000px;
+    height: 4000px;
+    background-image: url(https://sun9-35.userapi.com/impg/JoZ1hywP1XxNq7l5rWKF6-2McmqE_DUOlqnogg/TuhDlDW2x2c.jpg?size=434x429&quality=95&sign=6b5b179696a83f2f5c24cb23c8c74396&type=album);
+    background-size: cover;
+    position: relative;
+  }
+
+.игрок {
+  width: 80px;
+  height: 80px;
+  background-image: url(https://psv4.userapi.com/s/v1/d2/RsDe1qqxrNvINa3pvOCnwQuPoXBQPAAdWvdAV1oZh-TYIT9I86aGUvSn7lvbKbJ2UjjIEe-rgIM_lVo-o4_Q9SA5U9MH4te2pkyt2iWRsQEjRx2eFXBYKPmIJIJIIH_sOdv0Xurlm9K_/Bez_nazvania1040_20250917161552.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  cursor: pointer;
+  z-index: 9999;
+  border: 0px solid red;
+  display: block;
+  opacity: 1;
+  transition: z-index 0.3s;
+}
+
+/* Желудь */
+.acorn {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #8B4513;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: z-index 0.3S;
+}
+
+/* Кнопка "собрать" */
+#gather-btn {
+  position: absolute;
+  z-index: 0.3s;
+}
+
+/* Инвентарь */
+#inventory {
+  position: fixed;
+    bottom: 0;
+    left: calc(200px);
+    width: calc(100% - 350px);
+    background: #ddd;
+    border-top: 2px solid #000;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s;
+    padding: 0 10px;
+    box-sizing: border-box;
+      z-index: 999; /* приоритет инвентаря. элементы не торчат и не просвечивают черещ инвентарь, когда он открыт. */
+}
+#inventory.show {
+  height: 180px;
+  padding: 10px;
+}
+
+/* Панель голода */
+#hunger-container {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+#hunger-label {
+  margin-right: 8px;
+}
+#hunger-bar {
+  width: 150px;
+  height: 20px;
+  background: #aaa;
+  border: 1px solid #000;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+#hunger-fill {
+  height: 100%;
+  background: #f00;
+  width: 100%;
+  transition: width 0.5s;
+}
+
+/* Остальные стили */
+#chat {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+#right-panel button {
+  margin: 10px 0;
+  width: 100%;
+}
+#toggle-inventory {
+  position: fixed;
+  top: calc(100% - 70px);
+  right: 20px;
+  z-index: 2000;
+  padding: 10px 20px;
+  background-color: #999;
+  border: none;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* Тест смерти (красная кнопка) */
+#test-death {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- Левая панель ( чат, параметры, кнопки справа также планируется перетащить сюда)-->
+<div id="left-panel" style="background-color:#d0f0c0;">
+  <h3>Чат</h3>
+  <button id="close-chat">Закрыть чат</button>
+  <div id="chat-content" style="margin-top:10px;">
+    <p>Здесь может быть чат или другие элементы.</p>
+  </div>
+  <!-- Панель голода в левом блоке -->
+  <div id="hunger-container">
+    <div id="hunger-label">Голод:</div>
+    <div id="hunger-bar">
+      <div id="hunger-fill"></div>
     </div>
   </div>
 </div>
-<style>
-.container {
-  max-width: 40000px;
-  height: 40000px;
-  margin: auto;
-  border: 1px solid;
-  overflow: auto;
-}
-.container {
-  max-width: 40000px;
-  height: 40000px;
-  margin: auto;
-  border: 5px solid;
-  overflow: auto;
-  scrollbar-width: none;
-}
-.container > div {
-  width: 200%;
-  height: 200%;
+
+<!-- Правая панель -->
+<div id="right-panel" style="background-color:#d0f0c0;">
+  <button><a href="главная(профиль).html">Мой профиль</a></button>
+  <button><a href="reg.html">Свернуть/Развернуть чат</a></button>
+  <button><a href="reg.html">Действия поблизости</a></button>
+  <!-- Добавляем красную кнопку "тест смерти" -->
+  <button id="test-death">Тест смерти</button>
+</div>
+
+<!-- Нижняя панель где тусит инвентарь-->
+<div id="bottom-bar" style="background-color:#d0f0c0;"></div>
+
+<!-- Кнопка инвентаря -->
+<button id="toggle-inventory">Инвентарь</button>
+
+<!-- Основной контейнер -->
+<div id="main-container">
+  <!-- игровая зона -->
+  <div id="game-area">
+    <div id="viewport">
+      <div class="game" id="scene">
+        <div class="игрок" id="player"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Инвентарь -->
+  <div id="inventory">
+    <h4>Инвентарь <img src="https://i.imgur.com/7zQYQ6f.png" alt="желудь" style="width:20px; height:20px; vertical-align:middle; margin-right:8px;"></h4>
+    <ul id="inventory-list"></ul>
+  </div>
+</div>
+
+<!-- Модальное окно для уведомлений -->
+<div id="death-modal" style="
+  display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:99999; align-items:center; justify-content:center;
+">
+  <div style="background:#fff; padding:20px; border-radius:8px; max-width:400px; text-align:center;">
+    <p id="death-message"></p>
+    <button id="accept-fate" style="margin-top:20px; padding:10px 20px;">Принять свою судьбу..</button>
+  </div>
+</div>
+
+<script>
+const player = document.getElementById('player');
+const viewport = document.getElementById('viewport');
+const scene = document.getElementById('scene');
+const inventory = document.getElementById('inventory');
+const toggleBtn = document.getElementById('toggle-inventory');
+const chatCloseBtn = document.getElementById('close-chat');
+const chatContent = document.getElementById('chat-content');
+const deathModal = document.getElementById('death-modal');
+const deathMessage = document.getElementById('death-message');
+const acceptFateBtn = document.getElementById('accept-fate');
+const testDeathBtn = document.getElementById('test-death');
+
+let posX = 50;
+let posY = 50;
+
+// Голод
+let hungerPercent = 100;
+const hungerFill = document.getElementById('hunger-fill');
+
+function updateHungerBar() {
+  hungerFill.style.width = hungerPercent + '%';
+  // Проверка смерти при голоде 0%
+  if (hungerPercent <= 0) {
+    showDeathNotification("Вы умерли, как жаль, желаете начать свой путь сначала?");
+  }
 }
 
-.game {
-  max-width: 39999px;
-  height: 39999px;
-  position: sticky;
-  top: 10px;
-  left: 40px;
-  border: 1px solid;
-  background: url(https://sun9-35.userapi.com/impg/JoZ1hywP1XxNq7l5rWKF6-2McmqE_DUOlqnogg/TuhDlDW2x2c.jpg?size=434x429&quality=95&sign=6b5b179696a83f2f5c24cb23c8c74396&type=album)
-}
-.mouse {
-  width: 60px;
-  aspect-ratio: 1;
-  position: relative;
-  top: 0%;
-  left: 0%;
-  z-index: 1;
-  background: url(https://i.pinimg.com/originals/45/4c/f2/454cf2e7c7f66b07b2310d467f75631d.png) center/cover;
-  animation: x linear,y linear;
-  animation-timeline: scroll(nearest inline),scroll(nearest block);
-}
-@keyframes x{to {left: calc(100% - 6px)}}
-@keyframes y{to {top: calc(100% - 6px)}}
+// Обновляем голод чтобы он падал на 1% каждые 3 минуты (180 секунд)
+setInterval(() => {
+  if (hungerPercent > 0) {
+    hungerPercent -= 1;
+    if (hungerPercent < 0) hungerPercent = 0;
+    updateHungerBar();
+  }
+}, 180000);
 
+// Изначально голод
+updateHungerBar();
 
-.coin {
-  position: absolute;
-  inset: 0;
-}
-.coin:before {
-  content: "";
-  position: absolute;
-  width: 50px;
-  left: calc(50% - 25px);
-  top: calc(50% - 25px);
-  aspect-ratio: 1;
-  background: url(https://assets.codepen.io/1480814/ccc.png) 0 50%/600% auto no-repeat;
-}
- </style>
+// Переключение инвентаря
+toggleBtn.addEventListener('click', () => {
+  inventory.classList.toggle('show');
+});
+chatCloseBtn.addEventListener('click', () => {
+  chatContent.style.display = chatContent.style.display === 'none' ? 'block' : 'none';
+});
 
+// Перемещение игрока
+function movePlayer(dx, dy) {
+  posX += dx;
+  posY += dy;
+  posX = Math.max(0, Math.min(2000 - 80, posX));
+  posY = Math.max(0, Math.min(1500 - 80, posY));
+  player.style.left = posX + 'px';
+  player.style.top = posY + 'px';
+
+  const cW = viewport.offsetWidth;
+  const cH = viewport.offsetHeight;
+  let scrollX = posX + 40 - cW/2;
+  let scrollY = posY + 40 - cH/2;
+  scrollX = Math.max(0, Math.min(2000 - cW, scrollX));
+  scrollY = Math.max(0, Math.min(1500 - cH, scrollY));
+  viewport.scrollLeft = scrollX;
+  viewport.scrollTop = scrollY;
+
+  // Проверка расстояния для текущего желудя
+  if (currentAcorn && document.getElementById('gather-btn')) {
+    if (!isPlayerNearAcorn(currentAcorn)) {
+      document.getElementById('gather-btn').remove();
+      gatherButton = null;
+      currentAcorn = null;
+    }
+  }
+}
+
+// Обработчик нажатий для перемещения (включая диагонали)
+document.addEventListener('keydown', (e) => {
+  e.preventDefault();
+  switch(e.code) {
+    case 'KeyA': movePlayer(-20, 0); break;
+    case 'KeyD': movePlayer(20, 0); break;
+    case 'KeyW': movePlayer(0, -20); break;
+    case 'KeyS': movePlayer(0, 20); break;
+    case 'KeyQ': movePlayer(-20, -20); break;
+    case 'KeyE': movePlayer(20, -20); break;
+    case 'KeyZ': movePlayer(-20, 20); break;
+    case 'KeyX': movePlayer(20, 20); break;
+  }
+});
+
+// Спавн .желудей. максимум на поле - 100, в инвентаре - 10
+const acorns = [];
+const maxAcornsOnField = 100;
+const maxInventoryCount = 10;
+let totalAcornsCollected = 0;
+
+setInterval(() => {
+  if (acorns.length >= maxAcornsOnField || totalAcornsCollected >= maxInventoryCount) return;
+  spawnAcorn();
+}, 34000);
+spawnAcorn();
+
+function spawnAcorn() {
+  const x = Math.random() * (scene.offsetWidth - 30);
+  const y = Math.random() * (scene.offsetHeight - 30);
+  const acorn = document.createElement('div');
+  acorn.className = 'acorn';
+  acorn.style.left = x + 'px';
+  acorn.style.top = y + 'px';
+
+  acorn.addEventListener('click', () => {
+    showGatherButton(acorn);
+  });
+  scene.appendChild(acorn);
+  acorns.push(acorn);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  // Блокировка колесика мыши для запрета масштабирования
+  document.addEventListener('wheel', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+
+  // Блокировка Ctrl + колесо и Shift + колесо для запрета масштабирования и подглядывания за вещами, за обзор игрока выходящими
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.shiftKey) {
+      e.preventDefault();
+    }
+  });
+
+  // Блокировка жестов масштабирования на мобильных
+  document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+  document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+  document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+});
+
+// Текущий желудь для кнопки
+let currentAcorn = null;
+let gatherButton = null;
+
+// Функция для проверки расстояния
+function isPlayerNearAcorn(acorn) {
+  const playerRect = player.getBoundingClientRect();
+  const acornRect = acorn.getBoundingClientRect();
+  const dx = (playerRect.left + playerRect.width/2) - (acornRect.left + acornRect.width/2);
+  const dy = (playerRect.top + playerRect.height/2) - (acornRect.top + acornRect.height/2);
+  const distance = Math.sqrt(dx*dx + dy*dy);
+  return distance <= 60;
+}
+
+// Показываем кнопку, если игрок рядом
+function showGatherButton(acorn) {
+  // Удаляем существующую кнопку
+  if (gatherButton) {
+    gatherButton.remove();
+  }
+  // Проверка расстояния
+  if (!isPlayerNearAcorn(acorn)) {
+    return; // не показываем, если далеко
+  }
+  currentAcorn = acorn;
+
+  gatherButton = document.createElement('button');
+  gatherButton.id = 'gather-btn';
+  gatherButton.textContent = 'Собрать';
+
+  const acornLeft = acorn.offsetLeft;
+  const acornTop = acorn.offsetTop;
+
+  gatherButton.style.position = 'absolute';
+  gatherButton.style.left = `${acornLeft + 10}px`;
+  gatherButton.style.top = `${acornTop - 30}px`;
+
+  scene.appendChild(gatherButton);
+
+  gatherButton.onclick = () => {
+    if (totalAcornsCollected < maxInventoryCount) {
+      addAcornToInventory();
+      acorn.remove();
+    } else {
+      alert('Инвентарь полон!');
+    }
+    gatherButton.remove();
+    gatherButton = null;
+    currentAcorn = null;
+  };
+}
+
+// Добавление желудя в инвентарь
+function addAcornToInventory() {
+  totalAcornsCollected++;
+  const li = document.createElement('li');
+  li.innerHTML = `<img src="https://i.imgur.com/7zQYQ6f.png" style="width:20px; height:20px; vertical-align:middle;"> Жёлудь <span style="font-weight:bold;">(${totalAcornsCollected})</span> <button class="eat-btn">Съесть</button>`;
+  li.querySelector('.eat-btn').onclick = () => {
+    if (totalAcornsCollected > 0) {
+      totalAcornsCollected--;
+      // Пополнение голода на 4%
+      hungerPercent += 4;
+      if (hungerPercent > 100) hungerPercent = 100;
+      updateHungerBar();
+      li.remove();
+    }
+  };
+  document.getElementById('inventory-list').appendChild(li);
+  updateInventoryDisplay();
+}
+
+// Обновляем инвентарь
+function updateInventoryDisplay() {
+  document.querySelector('#inventory h4').innerHTML = `Инвентарь <img src="https://i.imgur.com/7zQYQ6f.png" style="width:20px; height:20px; vertical-align:middle;"> (${totalAcornsCollected})`;
+}
+
+// Постоянная проверка расстояния между .игрок и .желудь и исчезновение кнопки при отдалении
+setInterval(() => {
+  if (gatherButton && currentAcorn) {
+    if (!isPlayerNearAcorn(currentAcorn)) {
+      gatherButton.remove();
+      gatherButton = null;
+      currentAcorn = null;
+    }
+  }
+}, 500);
+
+// Функция отображения уведомления о смерти
+function showDeathNotification(message) {
+  deathMessage.textContent = message;
+  deathModal.style.display = 'flex';
+}
+
+// Обработка кнопки "Принять свою судьбу..."
+acceptFateBtn.onclick = () => {
+  window.location.href = 'ваш окрас.HTML';
+};
+
+// Обработка кнопки "Тест смерти"
+document.getElementById('test-death').onclick = () => {
+  showDeathNotification("Вы умерли. Как жаль. Желаете начать свой путь сначала?");
+};
+// часть ниже отвечает за сохранение окраса
+window.addEventListener('load', () => {
+  const player = document.getElementById('player');
+  const savedAppearance = localStorage.getItem('characterAppearance');
+  if (savedAppearance && player) {
+    const settings = JSON.parse(savedAppearance);
+    if (settings.main && settings.element) {
+      player.style.backgroundImage = `url(${settings.main.src}), url(${settings.element.src})`;
+      player.style.backgroundRepeat = 'no-repeat, no-repeat';
+      player.style.backgroundPosition = 'center, center';
+      player.style.backgroundSize = 'cover, contain';
+    } else if (settings.main) {
+      player.style.backgroundImage = `url(${settings.main.src})`;
+      player.style.backgroundRepeat = 'no-repeat';
+      player.style.backgroundPosition = 'center';
+      player.style.backgroundSize = 'cover';
+    }
+  }
+});
+</script>
+</body>
+</html>
