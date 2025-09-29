@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Конструктор внешности персонажа (многослойный)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+
+  #model-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+  }
+
+  #cube {
+    width: 150px;
+    height: 150px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    /* Изначально без изображения */
+    background-image: none;
+  }
+
+  .elements {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  
+  .thumbnail {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* Выделение выбранного */
+  .thumbnail.selected {
+    border-color: #000;
+  }
+
+  /* Стиль для кнопок */
+  button {
+    margin-right: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Конструктор внешности персонажа</h2>
+
+<div id="model-container">
+  <div id="cube"></div>
+</div>
+
+<h3>Выберите основу Вашего персонажа:</h3>
+<div class="elements" id="color-options"></div>
+
+<h3>Выберите дополнительные элементы(полосы):</h3>
+<div class="elements" id="element-options"></div>
+
+<!-- Кнопки -->
+<button id="saveBtn">Сохранить</button>
+<button id="loadBtn">Сбросить</button>
+
+<script>
+  // основа
+  const mainOptions = [
+    { src: 'https://psv4.userapi.com/s/v1/d2/BD-DGphb7VuXum1HPSUNSVnSkz3YKa7CFhU32dAGL7iPNN4F9M3XEqzlXn1oiiCCl9xEz88pjwounBu7LdPzm1CXbX8blHkin0tdFxFcVZamcKR3NWf85k4k9ZSRets_59dnnHiAy2Yv/Bez_nazvania4.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/Jq8KWwHEuTGc_SfUxvoGezQ3ClSr0G78cC3wS9G2KjHT-2qnA97nRbbDDUyU38KDKM09eTMuRQe0HjMI9XADvuwdpsnBlcfIyVxnkuwAyfoWWcfuqAdiWI1Cy5oI3gAo-fvR3rdGGZ1R/Bez_nazvania4_1.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/Pu69yxF_polrxZxLBejm_43sT3OcXnarnsagijPR47g1GSqEb6ywr_oiL83haeR8VogHL-IcX68Eb2L47KQEMVG0bzkujbylWlJmspbI3ZmQhX_VakA47IuY8JJlwM88GlR0n5QyaEEM/Bez_nazvania4_2.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/Z2Ai3UPtIM2ks6q5_oLntEnF8nsD_POQoe2s6syQQhTtCnvyih11dPSRqQNquN3ivOGubzbfsFUJXdUDOQGmnDOkY42PW55ZjKwT0t8-xZLZYK1PL5dyRcozN058F0UOTALwIztjJrVS/Bez_nazvania4_3.png'},
+    { src: 'hhttps://psv4.userapi.com/s/v1/d2/IT0uxCQUheUX7Zoi0tjAAWbYq50LrGXqxZiLXIAEcUgFl7sHvdJVbQ7qBBDa6nWFf8Co6bUtqYA2vHS4FIyRmqL3lFa42g0dfWvSfumPQbR6oHFduT3E1_uZAKQwK9U6QUA37Hl6r9dC/Bez_nazvania4_4.png'},
+  ];
+  // доп.элементы - оттенок ушей+хвоста+лапок+носа
+  const elementOptions = [
+    { src: 'https://psv4.userapi.com/s/v1/d2/vuxbXB_QpWTwhCvDmVNKqnJoC-Y-i8KkXXYDu8eZX8qR1sGAabsRD5KZgxatU5BMNFhf7WDG66ZH-3xAsgfSO4KDBdqLXpoj1f9Ydpm9iJG3C3aH7SYCqC75ouAfNJgj4vtBbO8njEpk/Bez_nazvania4_5.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/W6PpRBPJCtxRIud9u-JJ_acGjHsTDkzOLHQ9ZgxPMO-iv5FXTUqbj6clY03qHu7RGcAtasZVVzZRBf6D8UXCQTFi2sLc9o-AOrr_uCwoJltgshrZBMP65MbSaEWCN-6oj1_fyQPGnKCi/Bez_nazvania4_6.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/o_o5pyNARvDJrum_pW-1E3HqzYFwPZ7vEzH9vVheiQbPm8f8-G5lNx5ELQeqFqFDdyd4d5ZkgrOU5ayFtKJbOVTbRj0yuL6DDMRGVn8aYeL42_BJVtWtKzpa4h69Vkl_z34symxHKU8A/Bez_nazvania4_7.png'},
+    { src: 'https://psv4.userapi.com/s/v1/d2/SyOK12acJ4xNLfDlucRcLuImr89nLujA82KXEHl0nuPtZpsy7K2JBtKzEuJe3kIZooOcN0xS2T18zoHgokRTFgFi_wPLd8PCoaMTZIEbo17ba4hMQJrGyEI0paD4KIE4pJqSmghBzhiE/Bez_nazvania1048.png'} 
+];
+
+  const cube = document.getElementById('cube');
+  const colorOptionsContainer = document.getElementById('color-options');
+  const elementOptionsContainer = document.getElementById('element-options');
+
+  let selectedMainOption = null;
+  let selectedElementOption = null;
+
+  // Создаем варианты для основной основы
+  mainOptions.forEach(opt => {
+    createOption(opt, colorOptionsContainer, (optSelected) => {
+      selectedMainOption = optSelected;
+      updateCubeBackground();
+    });
+  });
+  // Создаем варианты для дополнительных элементов
+  elementOptions.forEach(opt => {
+    createOption(opt, elementOptionsContainer, (optSelected) => {
+      selectedElementOption = optSelected;
+      updateCubeBackground();
+    });
+  });
+
+  function createOption(option, container, onSelect) {
+    const div = document.createElement('div');
+    div.className = 'thumbnail';
+    div.style.backgroundImage = `url(${option.src})`;
+    div.title = 'Выбрать';
+    div.onclick = () => {
+      onSelect(option);
+      // Обновляем выделение
+      Array.from(container.children).forEach(c => c.classList.remove('selected'));
+      div.classList.add('selected');
+    };
+    container.appendChild(div);
+  }
+
+  // Обновление фона кубика с учетом выбранных слоёв
+  function updateCubeBackground() {
+    if (selectedMainOption) {
+      if (selectedElementOption) {
+        // два слоя
+        cube.style.backgroundImage = `url(${selectedMainOption.src}), url(${selectedElementOption.src})`;
+        cube.style.backgroundRepeat = 'no-repeat, no-repeat';
+        cube.style.backgroundPosition = 'center, center';
+        cube.style.backgroundSize = 'cover, contain';
+      } else {
+        // только основной слой
+        cube.style.backgroundImage = `url(${selectedMainOption.src})`;
+        cube.style.backgroundRepeat = 'no-repeat';
+        cube.style.backgroundPosition = 'center';
+        cube.style.backgroundSize = 'cover';
+      }
+    } else {
+      cube.style.backgroundImage = '';
+    }
+  }
+
+  // Сохранение
+document.getElementById('saveBtn').addEventListener('click', () => {
+  if (!selectedMainOption) {
+    alert('Пожалуйста, выберите основу перед сохранением!');
+    return; // не сохраняем без основы
+  }
+  const settings = {
+    main: selectedMainOption,
+    element: selectedElementOption
+  };
+  localStorage.setItem('characterAppearance', JSON.stringify(settings));
+  alert('Вы успешно создали персонажа!');
+
+  // После закрытия alert — переходим на следующую страницу
+  window.location.href = 'игровая.html';  
+});
+
+// Загрузка
+document.getElementById('loadBtn').addEventListener('click', () => {
+  const saved = localStorage.getItem('characterAppearance');
+  if (saved) {
+    const settings = JSON.parse(saved);
+    selectedMainOption = settings.main;
+    selectedElementOption = settings.element;
+
+    // Обновляем выделение миниатюр
+    Array.from(document.querySelectorAll('#color-options .thumbnail')).forEach(c => {
+      c.classList.remove('selected');
+      if (selectedMainOption && c.style.backgroundImage.includes(selectedMainOption.src)) {
+        c.classList.add('selected');
+      }
+    });
+    Array.from(document.querySelectorAll('#element-options .thumbnail')).forEach(c => {
+      c.classList.remove('selected');
+      if (selectedElementOption && c.style.backgroundImage.includes(selectedElementOption.src)) {
+        c.classList.add('selected');
+      }
+    });
+    updateCubeBackground();
+  } else {
+    alert('Нет сохранённых настроек.');
+  }
+});
+</script>
+
+</body>
+</html>
